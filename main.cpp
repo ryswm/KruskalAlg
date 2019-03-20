@@ -7,10 +7,12 @@
 
 using namespace std;
 
-//Alias for edge and respective weight
+//Alias for edge and respective weight <<src, dest>, weight>
 typedef pair<pair<int, int>, int> Edge;
 
+//Disjoint set structure <node id, subset id>
 typedef pair<int, int> Disjoint;
+
 //Creating Graph Struct
 /*
  * *IF BEING USED: clean() FUNCTION MUST BE USED WHEN DONE*
@@ -93,7 +95,6 @@ struct Graph {
 
 //Function Declarations
 void mst(Graph g);
-void printGraph(Edge edg);
 
 int main() {
     //Making default test graph
@@ -111,6 +112,7 @@ void mst(Graph g){
     //Sorting by weight first
     g.sort(g.numEdg, g.edges);
 
+    //MST and index
     int treeEdge = 0;
     Edge *tree = new Edge[g.verts];
 
@@ -119,32 +121,33 @@ void mst(Graph g){
     while(count < g.numEdg){
         int sourceSet, destinationSet;
 
+        //Find if vertex subset has been merged from original subset
         sourceSet = g.inSet(g.edges[count].first.first);
         destinationSet = g.inSet(g.edges[count].first.second);
 
+        //If not in same subset (no cycle)
         if(sourceSet != destinationSet){
+            //Add edge to minimum spanning tree
             tree[treeEdge++] = g.edges[count];
+
+            //Merge subsets
             g.sets[destinationSet].second = g.sets[sourceSet].second;
         }
         count++;
     }
 
+    //Print MST
     for(int i = 0; i < g.verts - 1; i++){
         cout<<"{"<<tree[i].first.first<<" "<<tree[i].first.second<<"} W: "<< tree[i].second<<endl;
     }
 
 }
 
+//Determine subset location of vertex
 int Graph::inSet(int setI){
     if(setI == sets[setI].second){
         return setI;
     } else{
         return inSet(sets[setI].second);
     }
-}
-
-
-//Print function for for_each loop
-void printGraph(Edge edg){
-    cout<<"{"<<edg.first.first<<" "<<edg.first.second<<"} w: "<<edg.second<<endl;
 }
