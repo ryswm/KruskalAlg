@@ -10,21 +10,30 @@ using namespace std;
 //Alias for edge and respective weight
 typedef pair<pair<int, int>, int> Edge;
 
+typedef pair<int, int> Disjoint;
 //Creating Graph Struct
 /*
  * *IF BEING USED: clean() FUNCTION MUST BE USED WHEN DONE*
  *
  */
 struct Graph {
+    int inSet(int setI);
     int verts, numEdg;
     Edge *edges;
+    Disjoint *sets;
+
     int n = 0;
 
-    //Default constructor set to default test values
+    //Constructors
     Graph(){
         this->verts = 4;
         this->numEdg = 5;
         this->edges = new Edge[this->numEdg];
+        this->sets = new Disjoint[this->verts];
+        for(int i = 0; i < this->verts; i++){
+            this->sets[i].first = i;
+            this->sets[i].second = i;
+        }
 
         addEdge(0, 1, 5);
         addEdge(0, 2, 3);
@@ -33,12 +42,17 @@ struct Graph {
         addEdge(2, 3, 2);
     }
 
-    //Constructor
     Graph(int verts, int edges) {
         this->verts = verts;
         this->numEdg = edges;
         this->edges = new Edge[edges];
+        this->sets = new Disjoint[this->verts];
+        for(int i = 0; i < this->verts; i++){
+            this->sets[i].second = i;
+        }
     }
+
+    //*****Helpers*****//
 
     //Adds edge to graph, if attempting to add more edges than declared, edges wont be set
     void addEdge(int src, int dest, int w){
@@ -52,8 +66,6 @@ struct Graph {
         this->edges[n] = {{src, dest}, w};
         n++;
     }
-
-    //Helpers
 
     //Utilizing selection sort to sort graph edges by weight
     void sort(int size, Edge* edge){
@@ -78,10 +90,6 @@ struct Graph {
         edges = NULL;
     }
 };
-struct Subset{
-    Edge edge;
-    Subset *next;
-};
 
 //Function Declarations
 void mst(Graph g);
@@ -100,35 +108,39 @@ int main() {
 
 // Kruskal's Algorithm
 void mst(Graph g){
-    int source, destination;
-    int treeV = 0;
-
     //Sorting by weight first
     g.sort(g.numEdg, g.edges);
 
-    //Make list of trees (initially individual nodes) && Populate with vertices
-    Subset* sets = new Subset[g.numEdg];
-    for(int i = 0; i < g.numEdg; i++){
-        sets[i].edge = g.edges[i];
-        //cout<<"Set "<<i+1<<": {"<<sets[i].edge.first.first<<" "<<sets[i].edge.first.second<<"}"<<endl;
+    int treeEdge = 0;
+    Edge *tree = new Edge[g.verts];
+
+    //Making trees and checking cycles
+    int count = 0;
+    while(count < g.numEdg){
+        int sourceSet, destinationSet;
+
+        sourceSet = g.inSet(g.edges[count].first.first);
+        destinationSet = g.inSet(g.edges[count].first.second);
+
+        if(sourceSet != destinationSet){
+            tree[treeEdge++] = g.edges[count];
+            g.sets[destinationSet].second = g.sets[sourceSet].second;
+        }
+        count++;
     }
 
-    int num = 0;
-    int subCount = 0;
-    while(treeV < g.verts - 1){
-         Subset currEdge;
-         currEdge.edge = g.edges[num];
-        num++;
-
-        //InProgress
-        /*if(currEdge.first.first != currEdge.first.second){
-            sets[subCount].next = currEdge
-        }*/
-
+    for(int i = 0; i < g.verts - 1; i++){
+        cout<<"{"<<tree[i].first.first<<" "<<tree[i].first.second<<"} W: "<< tree[i].second<<endl;
     }
 
+}
 
-
+int Graph::inSet(int setI){
+    if(setI == sets[setI].second){
+        return setI;
+    } else{
+        return inSet(sets[setI].second);
+    }
 }
 
 
