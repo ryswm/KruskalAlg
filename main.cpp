@@ -1,7 +1,7 @@
 /*  Implementation of Kruskal's algorithm
 *   Lab 4 - CPS616
 *   Ryan Woodworth - 500752821
-*   18/03/19
+*   21/03/19
 */
 #include <iostream>
 
@@ -98,13 +98,34 @@ void mst(Graph g);
 
 int main() {
     //Making default test graph
-    Graph g = Graph();
+    Graph g;
 
     //Running Kruskal's Algorithm
     mst(g);
 
+
+    cout<<"----------------------------"<<endl; //Split from given and my own test
+    //My Own Graph
+    Graph x = Graph(9, 14);
+    x.addEdge(0,1,4);
+    x.addEdge(0,7,8);
+    x.addEdge(1,7,11);
+    x.addEdge(1,2,8);
+    x.addEdge(7,8,7);
+    x.addEdge(6,7,1);
+    x.addEdge(2,8,2);
+    x.addEdge(6,8,6);
+    x.addEdge(2,3,7);
+    x.addEdge(2,5,4);
+    x.addEdge(5,6,2);
+    x.addEdge(3,5,14);
+    x.addEdge(3,4,9);
+    x.addEdge(4,5,10);
+    mst(x);
+
     //Cleaning memory used by graphs
     g.clean();
+    x.clean();
 }
 
 // Kruskal's Algorithm
@@ -137,9 +158,13 @@ void mst(Graph g){
     }
 
     //Print MST
+    int totalW = 0;
+    cout<<"The edges in the minimum spanning tree are:"<<endl;
     for(int i = 0; i < g.verts - 1; i++){
         cout<<"{"<<tree[i].first.first<<" "<<tree[i].first.second<<"} W: "<< tree[i].second<<endl;
+        totalW += tree[i].second;
     }
+    cout<<"Total weight of tree is : "<<totalW<<endl;
 
 }
 
